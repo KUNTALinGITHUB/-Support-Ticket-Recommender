@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Support Ticket Recommender</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #eef2f3, #8e9eab);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      background-color: #fff;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #333;
+    }
+
+    textarea, input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      margin-top: 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .result {
+      margin-top: 30px;
+      white-space: pre-wrap;
+      font-size: 15px;
+    }
+
+    .suggestions {
+      margin-top: 5px;
+      display: none;
+      background-color: #f0f0f0;
+      border-radius: 6px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .suggestions div {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .suggestions div:hover {
+      background-color: #e6e6e6;
+    }
+
+    .result-card {
+      background-color: #fafafa;
+      margin-bottom: 10px;
+      padding: 15px;
+      border-left: 4px solid #4CAF50;
+      border-radius: 8px;
+    }
+
+    .result-card h4 {
+      margin: 0 0 8px;
+      color: #444;
+    }
+
+    .result-card p {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>💬 Support Ticket Recommender</h2>
+
+    <textarea id="remark" rows="3" placeholder="Enter customer remark..."></textarea>
+    <div class="suggestions" id="suggestions"></div>
+
+    <select id="category">
+      <option value="" selected disabled>🎯 Select Product Category</option>
+      <option value="LifeStyle">LifeStyle</option>
+      <option value="Electronics">Electronics</option>
+      <option value="Mobile">Mobile</option>
+      <option value="Home Appliences">Home Appliences</option>
+      <option value="Furniture">Furniture</option>
+      <option value="Home">Home</option>
+      <option value="Books & General merchandise">Books & General merchandise</option>
+      <option value="GiftCard">GiftCard</option>
+      <option value="Affiliates">Affiliates</option>
+    </select>
+
+    <input type="number" id="topN" value="" min="1" max="10" placeholder="Top N recommendations" />
+
+    <button onclick="getRecommendation()">🧠 Get Recommendation</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    async function getRecommendation() {
+      const payload = {
+        customer_remark: document.getElementById("remark").value,
+        Product_category: document.getElementById("category").value,
+        top_n: parseInt(document.getElementById("topN").value)
+      };
+
+      const response = await fetch("/recommend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      let output = '';
+
+      data.forEach((item, i) => {
+        output += `
+          <div class="result-card">
+            <h4>📝 ${i + 1}. ${item['Customer Remarks']}</h4>
+            <p>📂 Category: ${item['Sub-category']}</p>
+          </div>
+        `;
+      });
+
+      document.getElementById("result").innerHTML = output;
+    }
+
+    document.getElementById("remark").addEventListener("input", async () => {
+      const input = document.getElementById("remark").value;
+      const suggestionsBox = document.getElementById("suggestions");
+
+      if (input.length < 3) {
+        suggestionsBox.innerHTML = "";
+        suggestionsBox.style.display = "none";
+        return;
+      }
+
+      const response = await fetch("/autocomplete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: input })
+      });
+
+      const suggestions = await response.json();
+
+      if (suggestions.length > 0) {
+        suggestionsBox.innerHTML = suggestions
+          .map(s => `<div onclick="selectSuggestion('${s.replace(/'/g, "\\'")}')">${s}</div>`)
+          .join('');
+        suggestionsBox.style.display = "block";
+      } else {
+        suggestionsBox.innerHTML = "";
+        suggestionsBox.style.display = "none";
+      }
+    });
+
+    function selectSuggestion(text) {
+      document.getElementById("remark").value = text;
+      document.getElementById("suggestions").innerHTML = "";
+      document.getElementById("suggestions").style.display = "none";
+    }
+  </script>
+</body>
+</html>
