@@ -74,8 +74,8 @@ recommendation_system/
     └── index.html            # Interactive frontend
 🔧 Setup & Installation
 bash
-git clone https://github.com/your-username/support-ticket-recommender.git
-cd support-ticket-recommender
+git clonehttps://github.com/KUNTALinGITHUB/-Support-Ticket-Recommender.git
+cd -Support-Ticket-Recommender.git
 pip install -r requirements.txt
 Make sure you have Python ≥ 3.7 and install dependencies like Flask, pandas, scikit-learn, and sentence-transformers.
 
