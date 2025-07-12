@@ -73,19 +73,20 @@ recommendation_system/
 └── static/
     └── index.html            # Interactive frontend
 🔧 Setup & Installation
-bash
+
+~bash
 git clonehttps://github.com/KUNTALinGITHUB/-Support-Ticket-Recommender.git
 cd -Support-Ticket-Recommender.git
 pip install -r requirements.txt
 Make sure you have Python ≥ 3.7 and install dependencies like Flask, pandas, scikit-learn, and sentence-transformers.
 
 🛠️ Generate Model
-bash
+~bash
 python run_model.py
 This will read your dataset and generate recommender.pkl using SBERT embeddings.
 
 🌐 Run the Flask Server
-bash
+~bash
 python app.py
 Visit: http://127.0.0.1:5000/ You’ll see the user interface where users can input a complaint and get matched suggestions.
 
